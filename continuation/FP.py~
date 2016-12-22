@@ -1,0 +1,67 @@
+import numpy as np
+import scipy.optimize
+
+dim = 4
+
+def field(x, sigma, mu, p):
+    f = np.array([p[0]*x[0]*x[1] + p[1]*x[1]*x[2] + p[2]*x[2]*x[3] - mu*x[0],
+                  p[3]*x[1]*x[3] + p[4]*x[0]*x[2] - p[0]*x[0]**2 - mu*x[1] + sigma,
+                  p[5]*x[0]*x[3] - (p[1]+p[4])*x[0]*x[1] - mu*x[2],
+                  -p[3]*x[1]**2 - (p[2]+p[5])*x[0]*x[2] - mu*x[3]])
+    return f
+
+def Jacobian(x, sigma, mu, p):
+    J = np.array([[p[0]*x[1] - mu, p[0]*x[0] + p[1]*x[2],
+                   p[1]*x[1] + p[2]*x[3], p[2]*x[2]],
+                  [p[4]*x[2] - 2*p[0]*x[0], p[3]*x[3] - mu, p[4]*x[0], p[3]*x[1]],
+                  [p[5]*x[3] - (p[1]+p[4])*x[1], -(p[1]+p[4])*x[0], -mu, p[5]*x[0]],
+                  [-(p[2]+p[5])*x[2], -2*p[3]*x[1], -(p[2]+p[5])*x[0], -mu]])
+    return J
+
+
+sigmaRng = np.arange(-5, 30, 0.1)
+mu = 1.
+p = np.array([0.35, 0.19, 0.11, 0.23, 0.39, 0.35])
+a = 0.
+x0 = np.array([-a, 0., a, 0.])
+xRng = np.empty((sigmaRng.shape[0], dim))
+eigValRng = np.empty((sigmaRng.shape[0], dim), dtype=complex)
+
+for s in np.arange(sigmaRng.shape[0]):
+    sigma = sigmaRng[s]
+    (x, info, ier, mesg) = scipy.optimize.fsolve(field, x0, args=(sigma, mu, p),
+                                                 fprime=Jacobian, full_output=True)
+    xRng[s] = x
+
+    if (ier != 1):
+        print mesg
+        print 'Not converged at ', s, ' for ', sigma
+
+    J = Jacobian(x, sigma, mu, p)
+    (eigVal, eigVec) = numpy.linalg.eig(J)
+    isort = np.argsort(-eigVal.real)
+    eigVal = eigVal[isort]
+    eigValRng[s] = eigVal
+
+fig = plt.figure()
+ax = fig.add_subplot(111)
+obs = xRng[:, 0] + xRng[:, 2]
+ax.plot(sigmaRng[eigValRng[:, 0].real <= 0], obs[eigValRng[:, 0].real <= 0],
+        '-k', linewidth=2)
+ax.plot(sigmaRng[eigValRng[:, 0].real > 0], obs[eigValRng[:, 0].real > 0],
+        '--k', linewidth=2)
+ax.set_xlabel(r'$\sigma$')
+ax.set_ylabel(r'$A_1 + A_3$')
+fig.savefig('bifurcationDiagram.eps', dpi=300, bbox_inches='tight')
+
+fig = plt.figure()
+ax1 = fig.add_subplot(211)
+ax2 = fig.add_subplot(212)
+ax1.plot(sigmaRng, np.zeros((sigmaRng.shape[0],)), '--k')
+for d in np.arange(dim):
+    ax1.plot(sigmaRng, eigValRng[:, d].real, linewidth=2)
+    ax2.plot(sigmaRng, eigValRng[:, d].imag, linewidth=2)
+ax1.set_ylabel(r'$\Re(\lambda)$')
+ax2.set_ylabel(r'$\Im(\lambda)$')
+ax2.set_xlabel(r'$\sigma$')
+fig.savefig('JacobianEigenvalues.eps', dpi=300, bbox_inches='tight')

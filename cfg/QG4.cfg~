@@ -1,0 +1,140 @@
+general:
+{
+	# Results directory
+	resDir = "../results/";
+	specDir = "../results/spectrum/";
+	plotDir = "../results/plot/";
+	# Output file format:
+ 	fileFormat = "bin";
+	#fileFormat = "txt";
+};
+
+model:	
+{
+	# Case name to define files:
+	caseName = "QG4";
+	# Dimension of the model (time series):
+	dim = 4;
+	# Field parameters
+	sigma = 0.;
+#	sigma = 0.28;
+#	sigma = 0.285;
+#	sigma = 0.6;
+#	sigma = 0.79;
+#       sigma = 0.7925;
+#       sigma = 0.795;
+#	sigma = 0.7975;
+#	sigma = 0.8;
+	ci = [0.020736, 0.018337, 0.015617, 0.031977, 0.036673, 0.046850, 0.314802];
+	li = [0.0128616, 0.0211107, 0.0318615, 0.0427787];
+};
+
+simulation:
+{
+	# Initial constant state:
+	initState = [-0.312507, 2.001291, 2.029884, -2.067547];
+	# Time series length without spinup
+	#LCut = 1.e5;
+	#LCut = 10.;
+	LCut = 1.;
+	#LCut = 1.e-1;
+	#LCut = 1.e-2;
+	# Spinup duration:
+ 	spinup = 0.;
+	# Time step of integration
+ 	dt = 1.e-3;
+	# Time step between prints
+	#printStep = 10.;
+	printStep = 1.;
+	#printStep = 1.e-1;
+	#printStep = 1.e-2;
+};
+
+sprinkle:
+{
+	#nTraj = 1000000;
+	nTraj = 10000000;
+	minInitState = [-5., -5., -8., -10.];
+	maxInitState = [5., 8., 8., 5.];
+	#minInitState = [-10., -10., -15., -20.];
+	#maxInitState = [10., 15., 15., 15.];
+	seedRng = [1];
+};
+
+continuation:
+{
+	eps = 1.e-10;
+	maxIter = 1000;
+	numShoot = 1;
+	#sigmaStep = -1.e-3
+	#sigmaStep = 1.e-5;
+	sigmaStep = 1.e-6;
+	sigmaMin = 0.;
+	sigmaMax = 2.;
+	# Fixed point at origin continuation
+	#initCont = [0., 0., 0., 0., 0.];
+	# Asymmetric fixed point continuation
+	#initCont = [-0.1, 1.4, 0.43, -1.4, 0.3];
+	# Periodic orbit continuation
+	#initCont = [-0.389461, 1.940367, 2.03401 ,-2.047458, 0.64, 73.];
+	#initCont = [0.037007, 2.675296, 2.527468, -2.268484, 0.796192, 90.070933];
+	initCont = [0.057694, 2.687992, 2.501314, -2.245594, 0.789251, 156.650774];
+	#initCont = [0.043845, 2.654927, 2.46688 , -2.329673, 0.79, 86.14];
+};
+
+grid:
+{
+	readGridMem = false;
+#	readGridMem = true;
+	gridLimitsType = "fix";
+#	gridLimitsType = "std";
+	# Number of boxes in each direction and stand.
+	# dev. to span away from the mean state:
+	nx = [10, 10, 10, 10];
+	#nx = [20, 20, 20, 20];
+	#nx = [30, 30, 30, 30];
+};
+
+spectrum:
+{
+	# Number of eigenvalues to look for:
+	nev = 50;
+#	nev = 100;
+#	nev = 200;
+#	nev = 300;
+	maxit = 1000;
+	tol = 1.e-15;
+	getForwardEigenvectors = true;
+#	getForwardEigenvectors =  false;
+	getBackwardEigenvectors = true;
+#	getBackwardEigenvectors = false;
+	makeBiorthonormal = false;
+	nEigVecPlot = 0;
+	plotBackward = False
+	#plotBackward = True
+	plotImag = False     
+	#plotImag = True     
+};
+
+stat:
+{
+	# Lag of the transition matrix for which to plot
+	tauPlot = 0.01
+#	tauPlot = 0.1
+	# Components to use as observables:
+	idxf = 0;
+	idxg = 0;
+#	idxf = 2;
+#	idxg = 2;
+	# Maximum lag used to calculate the correlation function:
+	lagMax = 10;
+	# Multi-taper window used to calculate periodograms:
+	chunkWidth = 100;
+	# Limits for periodogram plot:
+	angFreqMax = 40.;
+	rateMax = 2.;
+	powerMin = 1.e-3;
+	powerMax = 1.e3;
+	maxCondition = 50
+	norm = False
+};
