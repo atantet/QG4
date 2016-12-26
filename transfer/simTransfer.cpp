@@ -212,7 +212,7 @@ int main(int argc, char * argv[])
 
   // Get transition matrices as CSR
   std::cout << "Building stationary transfer operator..." << std::endl;
-  transferOp = new transferOperator(gridMem, N, false);
+  transferOp = new transferOperator(gridMem, N, true);
 
 
   // Write results
@@ -236,21 +236,21 @@ int main(int argc, char * argv[])
   transferOp->printInitDist(initDistFileName,
 			    fileFormat, "%.12lf");
       
-  // Write backward transition matrix
-  std::cout << "Writing backward transition matrix \
-and final distribution..." << std::endl;
-  sprintf(backwardTransitionFileName,
-	  "%s/transfer/backwardTransition/backwardTransition%s.coo%s",
-	  resDir, postfix, fileFormat);
-  transferOp->printBackwardTransition(backwardTransitionFileName,
-				      fileFormat, "%.12lf");
+//   // Write backward transition matrix
+//   std::cout << "Writing backward transition matrix \
+// and final distribution..." << std::endl;
+//   sprintf(backwardTransitionFileName,
+// 	  "%s/transfer/backwardTransition/backwardTransition%s.coo%s",
+// 	  resDir, postfix, fileFormat);
+//   transferOp->printBackwardTransition(backwardTransitionFileName,
+// 				      fileFormat, "%.12lf");
 
-  // Write final distribution 
-  sprintf(finalDistFileName,
-	  "%s/transfer/finalDist/finalDist%s.%s",
-	  resDir, postfix, fileFormat);
-  transferOp->printFinalDist(finalDistFileName,
-				 fileFormat, "%.12lf");
+//   // Write final distribution 
+//   sprintf(finalDistFileName,
+// 	  "%s/transfer/finalDist/finalDist%s.%s",
+// 	  resDir, postfix, fileFormat);
+//   transferOp->printFinalDist(finalDistFileName,
+// 				 fileFormat, "%.12lf");
 	
   // Free
   delete transferOp;

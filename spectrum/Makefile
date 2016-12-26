@@ -1,12 +1,12 @@
 INCDIR=-I$(HOME)/local/include/
 LIBDIR=-L$(HOME)/local/lib/
-LIBS=-lgsl -lconfig++ -lopenblas -larpack -lergopack
+LIBS=-lgsl -lgslcblas -lconfig++ -larpack -lergopack -lgomp
 CONFIG=../cfg/readConfig
 
-CC=g++
+CC=icc -openmp
 WARN=-Wall -Wformat=0
-CFLAGS=$(WARN) -pedantic-errors -O3
-LDFLAGSSTD=-undefined dynamic_lookup
+CFLAGS=$(WARN)
+LDFLAGSSTD=
 LDFLAGSGDB=$(LDFLAGSSTD) -gdb
 
 LDFLAGS=$(LDFLAGSSTD)

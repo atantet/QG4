@@ -1,22 +1,16 @@
 INCDIR=-I$(HOME)/local/include/
 LIBDIR=-L$(HOME)/local/lib/
-LIBS=-lgsl -lconfig++ -lergopack
+LIBS=-lgsl -lgslcblas -lconfig++ -lergopack -lgomp
 CONFIG=../cfg/readConfig
 
-CC=g++
+CC=icc -openmp
 WARN=-Wall -Wformat=0
-CFLAGS=$(WARN) -pedantic-errors -O3
-LDFLAGSSTD=-undefined dynamic_lookup
+CFLAGS=$(WARN) -O3
+LDFLAGSSTD=
 LDFLAGSGDB=$(LDFLAGSSTD) -gdb
 
 LDFLAGS=$(LDFLAGSSTD)
 #LDFLAGS=$(LDFLAGSGDB)
-
-# Use OpenMP?
-ifeq ($(WITH_OMP),1)
-  LIBS +=-lgomp
-  CFLAGS += -fopenmp -DWITH_OMP=$(WITH_OMP)
-endif
 
 #EXE=transfer
 EXE=simTransfer
