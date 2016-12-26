@@ -35,10 +35,9 @@ for d in np.arange(dimObs):
                                         cfg.sprinkle.minInitState[d],
                                         cfg.sprinkle.maxInitState[d])
 gridPostfix = "_%s%s" % (caseName, gridPostfix)
-srcPostfixSim = "%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d" \
+srcPostfixSim = "%s_sigma%04d_L%d_dt%d_nTraj%d" \
                 % (gridPostfix, int(sigma * 1000 + 0.1), int(L * 1000 + 0.1),
-                   cfg.simulation.spinup, -np.round(np.log10(cfg.simulation.dt)),
-                   printStepNum, cfg.sprinkle.nTraj)
+                   -np.round(np.log10(cfg.simulation.dt)), cfg.sprinkle.nTraj)
 
 xmineigVal = -cfg.stat.rateMax
 ymineigVal = -cfg.stat.angFreqMax
