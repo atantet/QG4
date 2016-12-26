@@ -30,9 +30,6 @@
  * Then, the membership matrix is calculated for a given lag.
  * The forward transition matrices as well as the initial distributions
  * are calculated from the membership matrix.
- * Note that, since the transitions are calculated from long time series,
- * the problem must be autonomous and ergodic (stationary) so that
- * the backward transition matrix and final distribution need not be calculated.
  * Finally, the results are printed.
  */
 
@@ -76,13 +73,13 @@ int main(int argc, char * argv[])
   // Grid declarations
   Grid *grid;
   const int nTrajPerBox = nTraj / N;
+  size_t nIn = 0;
 
   // Grid membership declarations
-  gsl_matrix_uint *gridMem;
+  gsl_spmatrix *T;
     
   // Transfer operator declarations
   char forwardTransitionFileName[256], initDistFileName[256],
-    backwardTransitionFileName[256], finalDistFileName[256],
     postfix[256], maskFileName[256];
 
   transferOperator *transferOp;
@@ -101,13 +98,22 @@ int main(int argc, char * argv[])
 
   // Define grid and allocate grid membership matrix
   grid = new RegularGrid(nx, gridLimitsLow, gridLimitsUp);
-  gridMem = gsl_matrix_uint_alloc(nTraj, 2);
   // Print grid
   grid->printGrid(gridFileName, "%.12lf", true);
 
+  // Build transfer operator
+  transferOp = new transferOperator(N, true);
 
+  // Get transition count triplets
+  if (!(T = gsl_spmatrix_alloc_nzmax(N, N, nTraj, GSL_SPMATRIX_TRIPLET)))
+    {
+      fprintf(stderr, "Error allocating\
+triplet count matrix.\n");
+      std::bad_alloc();
+    }
+  
   // Iterate for each trajectory
-  std::cout << "Getting grid membership matrix..." << std::endl;
+  std::cout << "Getting transitions..." << std::endl;
 #pragma omp parallel
   {
     size_t boxf;
@@ -121,10 +127,8 @@ int main(int argc, char * argv[])
     
     // Define field
     vectorField *field = new QG4(sigma, ci, li);
-  
     // Define numerical scheme
     numericalScheme *scheme = new RungeKutta4(dim);
-
     // Define model (the initial state will be assigned later)
     model *mod = new model(field, scheme);
 
@@ -142,7 +146,7 @@ int main(int argc, char * argv[])
 	    }
 	  }
 	
-	// Get bounds of box
+	// Get boundaries of box
 	unravel_index(box0, nx, multiIdx);
 	for (size_t d = 0; d < (size_t) dim; d++)
 	  {
@@ -178,14 +182,9 @@ int main(int argc, char * argv[])
 #pragma omp critical
 	{
 	  // Copy final box from box0 to grid membership matrix
-	  gsl_vector_uint_view gridMemCol \
-	    = gsl_matrix_uint_subcolumn(gridMem, 1, box0*nTrajPerBox, nTrajPerBox);
-	  gsl_vector_uint_memcpy(&gridMemCol.vector, boxMem);
-	  // Copy box0 to grid membership matrix
-	  gridMemCol \
-	    = gsl_matrix_uint_subcolumn(gridMem, 0, box0*nTrajPerBox, nTrajPerBox);
-	  gsl_vector_uint_set_all(boxMem, box0);
-	  gsl_vector_uint_memcpy(&gridMemCol.vector, boxMem);
+	  for (size_t traj = 0; traj < (size_t) nTrajPerBox; traj++)
+	    nIn += transferOp->addTransition(T, box0,
+					     gsl_vector_uint_get(boxMem, traj));
 	}
       }
     gsl_vector_free(IC);
@@ -196,10 +195,17 @@ int main(int argc, char * argv[])
     delete scheme;
     delete field;
   }
-  // Free
-  delete grid;
+  std::cout <<  nIn * 100. / nTraj
+	    << "% of the trajectories ended up inside the domain." << std::endl;
+  
+  /** Build transition matrices */
+  transferOp->buildFromTransitionCount(T, nTraj);
 
-  // Get transition matrices for one lag
+  // Free transition count matrix and grid
+  gsl_spmatrix_free(T);
+  delete grid;
+  
+  // Write results
   // Grid membership postfix
   sprintf(dstGridPostfix, "%s_sigma%04d_L%d_dt%d_nTraj%d",
 	  gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
@@ -209,13 +215,6 @@ int main(int argc, char * argv[])
   std::cout << "\nConstructing transfer operator for a lag of "
 	    << L << std::endl;
 
-
-  // Get transition matrices as CSR
-  std::cout << "Building stationary transfer operator..." << std::endl;
-  transferOp = new transferOperator(gridMem, N, false);
-
-
-  // Write results
   // Write forward transition matrix
   std::cout << "Writing forward transition matrix..."
 	    << std::endl;
@@ -236,25 +235,8 @@ int main(int argc, char * argv[])
   transferOp->printInitDist(initDistFileName,
 			    fileFormat, "%.12lf");
       
-  // Write backward transition matrix
-  std::cout << "Writing backward transition matrix \
-and final distribution..." << std::endl;
-  sprintf(backwardTransitionFileName,
-	  "%s/transfer/backwardTransition/backwardTransition%s.coo%s",
-	  resDir, postfix, fileFormat);
-  transferOp->printBackwardTransition(backwardTransitionFileName,
-				      fileFormat, "%.12lf");
-
-  // Write final distribution 
-  sprintf(finalDistFileName,
-	  "%s/transfer/finalDist/finalDist%s.%s",
-	  resDir, postfix, fileFormat);
-  transferOp->printFinalDist(finalDistFileName,
-				 fileFormat, "%.12lf");
-	
   // Free
   delete transferOp;
-  gsl_matrix_uint_free(gridMem);
   freeConfig();
   
   return 0;
