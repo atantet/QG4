@@ -35,10 +35,11 @@ using namespace libconfig;
 int main(int argc, char * argv[])
 {
   FILE *dstStream;
-  char dstFileName[256], dstPostfix[256];
+  char srcPostfix[256], dstFileName[256], dstPostfix[256];
   size_t seed;
 
   // Read configuration file
+  std::cout.precision(6);
   if (argc < 2)
     {
       std::cout << "Enter path to configuration file:" << std::endl;
@@ -49,8 +50,15 @@ int main(int argc, char * argv[])
       strcpy(configFileName, argv[1]);
     }
   try
-   {
-     readConfig(configFileName);
+    {
+      Config cfg;
+      std::cout << "Sparsing config file " << configFileName << std::endl;
+      cfg.readFile(configFileName);
+      readGeneral(&cfg);
+      readModel(&cfg);
+      readSimulation(&cfg);
+      readSprinkle(&cfg);
+      std::cout << "Sparsing success.\n" << std::endl;
     }
   catch (...)
     {
@@ -66,8 +74,10 @@ int main(int argc, char * argv[])
   gsl_rng_set(r, seed);
 
   // Define names and open destination file
-  sprintf(dstPostfix, "%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
-	  boxPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000), (int) spinup,
+  sprintf(srcPostfix, "_%s%s", caseName, delayName);
+  sprintf(dstPostfix, "%s%s%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
+	  srcPostfix, obsName, boxPostfix,
+	  (int) (sigma * 1000 + 0.1), (int) (L * 1000), (int) spinup,
 	  (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1), (int) printStepNum,
 	  nTraj);
   sprintf(dstFileName, "%s/simulation/sim%s.%s",

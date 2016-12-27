@@ -10,6 +10,7 @@
 #include <gsl/gsl_randist.h>
 #include <libconfig.h++>
 #include <ODESolvers.hpp>
+#include <ODEFields.hpp>
 #include "../cfg/readConfig.hpp"
 
 using namespace libconfig;
@@ -36,7 +37,7 @@ int main(int argc, char * argv[])
 {
   FILE *dstStream;
   gsl_matrix *X;
-  char dstFileName[256], dstPostfix[256];
+  char srcPostfix[256], dstFileName[256], dstPostfix[256];
   size_t seed;
 
   // Read configuration file
@@ -51,7 +52,13 @@ int main(int argc, char * argv[])
     }
   try
    {
-     readConfig(configFileName);
+      Config cfg;
+      std::cout << "Sparsing config file " << configFileName << std::endl;
+      cfg.readFile(configFileName);
+      readGeneral(&cfg);
+      readModel(&cfg);
+      readSimulation(&cfg);
+      std::cout << "Sparsing success.\n" << std::endl;
     }
   catch (...)
     {
@@ -84,6 +91,7 @@ int main(int argc, char * argv[])
       gsl_rng_set(r, seed);
 
       // Define names and open destination file
+      sprintf(srcPostfix, "_%s", caseName);
       sprintf(dstPostfix, "%s_sigma%04d_L%d_spinup%d_dt%d_samp%d",
 	      srcPostfix, (int) (sigma * 1000 + 0.1), (int) L, (int) spinup,
 	      (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1), (int) printStepNum);

@@ -11,8 +11,19 @@ LDFLAGSGDB=$(LDFLAGSSTD) -gdb
 LDFLAGS=$(LDFLAGSSTD)
 #LDFLAGS=$(LDFLAGSGDB)
 
+<<<<<<< HEAD
 #EXE=simQG4
 EXE=simQG4Sprinkle
+=======
+# Use OpenMP?
+ifeq ($(WITH_OMP),1)
+  LIBS +=-lgomp
+  CFLAGS += -fopenmp -DWITH_OMP=$(WITH_OMP)
+endif
+
+EXE=simQG4
+#EXE=simQG4Sprinkle
+>>>>>>> f22b88b3bd8cb8f5e887873e50668ba85b86cb61
 
 all:$(EXE).out
 	mkdir -p ../results/simulation/
