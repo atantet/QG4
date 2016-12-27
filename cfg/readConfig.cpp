@@ -98,6 +98,7 @@ readModel(const Config *cfg)
 
       // Dimension
       dim = cfg->lookup("model.dim");
+      dimObs = dim;
       std::cout << "dim = " << dim << std::endl;
 
       // Case name
