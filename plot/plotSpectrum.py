@@ -16,7 +16,7 @@ cfg = pylibconfig2.Config()
 cfg.read_file(configFile)
 
 L = cfg.simulation.LCut + cfg.simulation.spinup
-tau = L
+tau = cfg.transfer.tauRng[0]
 printStepNum = int(cfg.simulation.printStep / cfg.simulation.dt + 0.1)
 caseName = cfg.model.caseName
 sigma = cfg.model.sigma
@@ -36,7 +36,7 @@ for d in np.arange(dimObs):
                                         cfg.sprinkle.maxInitState[d])
 gridPostfix = "_%s%s" % (caseName, gridPostfix)
 srcPostfixSim = "%s_sigma%04d_L%d_dt%d_nTraj%d" \
-                % (gridPostfix, int(sigma * 1000 + 0.1), int(L * 1000 + 0.1),
+                % (gridPostfix, int(sigma * 1000 + 0.1), int(tau * 1000 + 0.1),
                    -np.round(np.log10(cfg.simulation.dt)), cfg.sprinkle.nTraj)
 
 xmineigVal = -cfg.stat.rateMax
@@ -50,7 +50,7 @@ yticks = np.concatenate((yticksNeg, yticksPos))
 
 
 # Define file names
-postfix = "%s_tau%03d" % (srcPostfixSim, tau * 1000)
+postfix = "%s" % (srcPostfixSim,)
 eigValForwardFile = '%s/eigval/eigvalForward_nev%d%s.%s' \
                     % (cfg.general.specDir, cfg.spectrum.nev, postfix,
                        cfg.general.fileFormat)

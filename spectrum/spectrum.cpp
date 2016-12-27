@@ -74,15 +74,15 @@ int main(int argc, char * argv[])
 
   
   // Scan matrices and distributions for one lag
-  std::cout << "\nGetting spectrum for a lag of " << L << std::endl;
+  const double tau = gsl_vector_get(tauRng, 0);
+  std::cout << "\nGetting spectrum for a lag of " << tau << std::endl;
 
   // Get file names
   sprintf(srcPostfix, "_%s", caseName);
-  sprintf(srcPostfixSim, "%s%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
-	  srcPostfix, gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
-	  (int) spinup, (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1),
-	  (int) printStepNum, nTraj);
-  sprintf(postfix, "%s_tau%03d", srcPostfixSim, (int) (L * 1000 + 0.1));
+  sprintf(srcPostfixSim, "%s%s_sigma%04d_L%d_dt%d_nTraj%d",
+	  srcPostfix, gridPostfix, (int) (sigma * 1000 + 0.1), (int) (tau * 1000),
+	  (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1), nTraj);
+  sprintf(postfix, "%s", srcPostfixSim);
   sprintf(forwardTransitionFileName, \
 	  "%s/transfer/forwardTransition/forwardTransition%s.coo%s",
 	  resDir, postfix, fileFormat);
@@ -111,7 +111,7 @@ int main(int argc, char * argv[])
     {
       /** Construct transfer operator without allocating memory
 	  to the distributions (only to the mask) ! */
-      transferOp = new transferOperator(N, false);
+      transferOp = new transferOperator(N, stationary);
 	    
       // Scan forward transition matrix (this sets NFilled)
       std::cout << "Scanning forward transition matrix from "
@@ -145,24 +145,27 @@ int main(int argc, char * argv[])
       initDist = gsl_vector_alloc(transferOp->getNFilled());
       gsl_vector_memcpy(initDist, transferOp->initDist);
 	  
-      // Scan backward transition matrix
-      std::cout << "Scanning backward transition matrix from "
-		<< backwardTransitionFileName << std::endl;
-      transferOp->scanBackwardTransition(backwardTransitionFileName,
-					 fileFormat);
+      if (!stationary)
+	{
+	  // Scan backward transition matrix
+	  std::cout << "Scanning backward transition matrix from "
+		    << backwardTransitionFileName << std::endl;
+	  transferOp->scanBackwardTransition(backwardTransitionFileName,
+					     fileFormat);
       
-      // Only scan final distribution for the first lag
-      sprintf(finalDistFileName,
-	      "%s/transfer/finalDist/finalDist%s.%s",
-	      resDir, postfix, fileFormat);
-      std::cout << "Scanning final distribution from "
-		<< finalDistFileName << std::endl;
-      transferOp->scanFinalDist(finalDistFileName,
-				fileFormat);
+	  // Only scan final distribution for the first lag
+	  sprintf(finalDistFileName,
+		  "%s/transfer/finalDist/finalDist%s.%s",
+		  resDir, postfix, fileFormat);
+	  std::cout << "Scanning final distribution from "
+		    << finalDistFileName << std::endl;
+	  transferOp->scanFinalDist(finalDistFileName,
+				    fileFormat);
       
-      // Save final distribution
-      finalDist = gsl_vector_alloc(transferOp->getNFilled());
-      gsl_vector_memcpy(finalDist, transferOp->finalDist);
+	  // Save final distribution
+	  finalDist = gsl_vector_alloc(transferOp->getNFilled());
+	  gsl_vector_memcpy(finalDist, transferOp->finalDist);
+	}
     }
   catch (std::exception &ex)
     {
@@ -187,24 +190,24 @@ int main(int argc, char * argv[])
 		    << transferSpec->getNev()
 		    << "/" << nev << " eigenvalues." << std::endl;
 	}
-      if (getBackwardEigenvectors)
-	{
-	  std::cout << "Solving eigen problem for backward transition matrix..."
-		    << std::endl;
-	  transferSpec->getSpectrumBackward();
-	  std::cout << "Found "
-		    << transferSpec->getNev()
-		    << "/" << nev << " eigenvalues." << std::endl;
-	}
-      if (getForwardEigenvectors
-	  && getBackwardEigenvectors
-	  && makeBiorthonormal)
-	{
-	  std::cout << "Making set of forward and backward eigenvectors \
-biorthonormal..."
-		    << std::endl;
-	  transferSpec->makeBiorthonormal();
-	}
+//       if (getBackwardEigenvectors)
+// 	{
+// 	  std::cout << "Solving eigen problem for backward transition matrix..."
+// 		    << std::endl;
+// 	  transferSpec->getSpectrumBackward();
+// 	  std::cout << "Found "
+// 		    << transferSpec->getNev()
+// 		    << "/" << nev << " eigenvalues." << std::endl;
+// 	}
+//       if (getForwardEigenvectors
+// 	  && getBackwardEigenvectors
+// 	  && makeBiorthonormal)
+// 	{
+// 	  std::cout << "Making set of forward and backward eigenvectors \
+// biorthonormal..."
+// 		    << std::endl;
+// 	  transferSpec->makeBiorthonormal();
+// 	}
     }
   catch (std::exception &ex)
     {
@@ -219,17 +222,19 @@ biorthonormal..."
 	{
 	  std::cout << "Writing forward eigenvalues and eigenvectors..."
 		    << std::endl;
-	  transferSpec->writeSpectrumForward(EigValForwardFileName,
-					     EigVecForwardFileName,
-					     fileFormat);
-	}
+	  // transferSpec->writeSpectrumForward(EigValForwardFileName,
+	  // 				     EigVecForwardFileName,
+	  // 				     fileFormat);
+	  transferSpec->writeEigValForward(EigValForwardFileName, fileFormat);
+	  }
       if (getBackwardEigenvectors)
 	{
 	  std::cout << "Writing backward eigenvalues and eigenvectors..."
 		    << std::endl;
-	  transferSpec->writeSpectrumBackward(EigValBackwardFileName,
-					      EigVecBackwardFileName,
-					      fileFormat);
+	  // transferSpec->writeSpectrumBackward(EigValBackwardFileName,
+	  // 				      EigVecBackwardFileName,
+	  // 				      fileFormat);
+	  transferSpec->writeEigValBackward(EigValBackwardFileName, fileFormat);
 	}
     }
   catch (std::exception &ex)
