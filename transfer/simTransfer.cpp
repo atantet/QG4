@@ -59,7 +59,15 @@ int main(int argc, char * argv[])
     }
   try
    {
-     readConfig(configFileName);
+     Config cfg;
+     std::cout << "Sparsing config file " << configFileName << std::endl;
+     cfg.readFile(configFileName);
+     readGeneral(&cfg);
+     readModel(&cfg);
+     readSimulation(&cfg);
+     readSprinkle(&cfg);
+     readGrid(&cfg);
+     std::cout << "Sparsing success.\n" << std::endl;
     }
   catch (...)
     {
@@ -68,10 +76,11 @@ int main(int argc, char * argv[])
     }
 
   // Observable declarations
-  char dstGridPostfix[256];
+  char srcPostfix[256], dstGridPostfix[256];
 
   // Grid declarations
   Grid *grid;
+  char gridFileName[256];
   const int nTrajPerBox = nTraj / N;
   size_t nIn = 0;
 
@@ -99,12 +108,17 @@ int main(int argc, char * argv[])
   // Define grid and allocate grid membership matrix
   grid = new RegularGrid(nx, gridLimitsLow, gridLimitsUp);
   // Print grid
+  sprintf(srcPostfix, "_%s", caseName);
+  sprintf(gridFileName, "%s/grid/grid%s%s%s.txt", resDir, srcPostfix,
+	  gridPostfix);
   grid->printGrid(gridFileName, "%.12lf", true);
 
   // Build transfer operator
   transferOp = new transferOperator(N, true);
 
   // Get transition count triplets
+  std::cout << "Allocating transition count matrix for "
+	    << nTraj << " transitions" << std::endl;
   if (!(T = gsl_spmatrix_alloc_nzmax(N, N, nTraj, GSL_SPMATRIX_TRIPLET)))
     {
       fprintf(stderr, "Error allocating\
@@ -207,8 +221,8 @@ triplet count matrix.\n");
   
   // Write results
   // Grid membership postfix
-  sprintf(dstGridPostfix, "%s_sigma%04d_L%d_dt%d_nTraj%d",
-	  gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
+  sprintf(dstGridPostfix, "%s%s_sigma%04d_L%d_dt%d_nTraj%d",
+	  srcPostfix, gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
 	  (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1), nTraj);
   sprintf(postfix, "%s_tau%03d", dstGridPostfix, (int) (L * 1000 + 0.1));
 

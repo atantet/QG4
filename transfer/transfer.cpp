@@ -59,7 +59,16 @@ int main(int argc, char * argv[])
     }
   try
    {
-     readConfig(configFileName);
+     Config cfg;
+     std::cout << "Sparsing config file " << configFileName << std::endl;
+     cfg.readFile(configFileName);
+     readGeneral(&cfg);
+     readModel(&cfg);
+     readSimulation(&cfg);
+     readSprinkle(&cfg);
+     readGrid(&cfg);
+     readTransfer(&cfg);
+     std::cout << "Sparsing success.\n" << std::endl;
     }
   catch (...)
     {
@@ -68,13 +77,14 @@ int main(int argc, char * argv[])
     }
 
   // Observable declarations
-  char srcFileName[256], simPostfix[256], dstGridPostfix[256];
+  char srcPostfix[256], srcFileName[256], simPostfix[256], dstGridPostfix[256];
   FILE *srcStream;
   gsl_matrix *initStates, *finalStates;
   gsl_vector_view stateView;
 
   // Grid declarations
   Grid *grid;
+  char gridFileName[256];
 
   // Grid membership declarations
   char gridMemFileName[256];
@@ -90,11 +100,12 @@ int main(int argc, char * argv[])
 
   
   // Get grid membership matrix
+  sprintf(srcPostfix, "_%s", caseName);
   if (! readGridMem)
     {
       // Define names and open source file
-      sprintf(simPostfix, "%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
-	      boxPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
+      sprintf(simPostfix, "%s%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
+	      srcPostfix, boxPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
 	      (int) spinup, (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1),
 	      (int) printStepNum, nTraj);
       sprintf(srcFileName, "%s/simulation/sim%s.%s",
@@ -136,11 +147,14 @@ int main(int argc, char * argv[])
       grid = new RegularGrid(nx, gridLimitsLow, gridLimitsUp);
     
       // Print grid
+      sprintf(gridFileName, "%s/grid/grid%s%s%s.txt", resDir, srcPostfix,
+	      gridPostfix);
       grid->printGrid(gridFileName, "%.12lf", true);
-    
+
+
       // Grid membership file name
-      sprintf(dstGridPostfix, "%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
-	      gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
+      sprintf(dstGridPostfix, "%s%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
+	      srcPostfix, gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
 	      (int) spinup, (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1),
 	      (int) printStepNum, nTraj);
       sprintf(gridMemFileName, "%s/transfer/gridMem/gridMemMatrix%s.%s",

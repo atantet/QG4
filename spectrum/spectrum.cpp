@@ -40,7 +40,17 @@ int main(int argc, char * argv[])
     }
   try
    {
-     readConfig(configFileName);
+     Config cfg;
+     std::cout << "Sparsing config file " << configFileName << std::endl;
+     cfg.readFile(configFileName);
+     readGeneral(&cfg);
+     readModel(&cfg);
+     readSimulation(&cfg);
+     readSprinkle(&cfg);
+     readGrid(&cfg);
+     readTransfer(&cfg);
+     readSpectrum(&cfg);
+     std::cout << "Sparsing success.\n" << std::endl;
     }
   catch (...)
     {
@@ -52,7 +62,7 @@ int main(int argc, char * argv[])
   // Transfer
   char forwardTransitionFileName[256], initDistFileName[256],
     backwardTransitionFileName[256], finalDistFileName[256],
-    maskFileName[256], srcPostfixSim[256], postfix[256];
+    maskFileName[256], srcPostfix[256], srcPostfixSim[256], postfix[256];
   transferOperator *transferOp;
   gsl_vector *initDist, *finalDist;
   gsl_vector_uint *mask;
@@ -67,8 +77,9 @@ int main(int argc, char * argv[])
   std::cout << "\nGetting spectrum for a lag of " << L << std::endl;
 
   // Get file names
-  sprintf(srcPostfixSim, "%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
-	  gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
+  sprintf(srcPostfix, "_%s", caseName);
+  sprintf(srcPostfixSim, "%s%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
+	  srcPostfix, gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
 	  (int) spinup, (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1),
 	  (int) printStepNum, nTraj);
   sprintf(postfix, "%s_tau%03d", srcPostfixSim, (int) (L * 1000 + 0.1));

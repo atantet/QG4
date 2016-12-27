@@ -18,8 +18,8 @@ ifeq ($(WITH_OMP),1)
   CFLAGS += -fopenmp -DWITH_OMP=$(WITH_OMP)
 endif
 
-#EXE=simQG4
-EXE=simQG4Sprinkle
+EXE=simQG4
+#EXE=simQG4Sprinkle
 
 all:$(EXE).out
 	mkdir -p ../results/simulation/
