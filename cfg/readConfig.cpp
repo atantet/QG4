@@ -317,36 +317,6 @@ readSprinkle(const Config *cfg)
   else
     std::cout << "Sprinkle configuration section does not exist." << std::endl;
     
-<<<<<<< HEAD
-    // Grid limits type
-    strcpy(gridLimitsType, (const char *) cfg.lookup("grid.gridLimitsType"));
-    std::cout << "Grid limits type: " << gridLimitsType << std::endl;
-
-    // Grid limits
-    if (cfg.exists("grid.gridLimits"))
-      {
-	const Setting &gridLimitsLowSetting = cfg.lookup("grid.gridLimitsLow");
-	const Setting &gridLimitsUpSetting = cfg.lookup("grid.gridLimitsUp");
-	gridLimitsLow = gsl_vector_alloc(dimObs);
-	gridLimitsUp = gsl_vector_alloc(dimObs);
-	std::cout << "Grid limits (low, high):" << std::endl;
-	for (size_t d = 0; d < (size_t) (dimObs); d++)
-	  {
-	    gsl_vector_set(gridLimitsLow, d, gridLimitsLowSetting[d]);
-	    gsl_vector_set(gridLimitsUp, d, gridLimitsUpSetting[d]);
-	    std::cout << "dim " << d+1 << ": ("
-		      << gsl_vector_get(gridLimitsLow, d) << ", "
-		      << gsl_vector_get(gridLimitsUp, d) << ")" << std::endl;
-	  }
-      }
-    else
-      {
-	gridLimitsLow = gsl_vector_alloc(dimObs);
-	gridLimitsUp = gsl_vector_alloc(dimObs);
-	gsl_vector_memcpy(gridLimitsLow, minInitState);
-	gsl_vector_memcpy(gridLimitsUp, maxInitState);
-      }
-=======
    return;
 }
 
@@ -364,7 +334,6 @@ readObservable(const Config *cfg)
   if (cfg->exists("observable"))
     {
       std::cout << std::endl << "---observable---" << std::endl;
->>>>>>> f22b88b3bd8cb8f5e887873e50668ba85b86cb61
     
       // Components
       const Setting &compSetting = cfg->lookup("observable.components");

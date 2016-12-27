@@ -77,17 +77,11 @@ int main(int argc, char * argv[])
   std::cout << "\nGetting spectrum for a lag of " << L << std::endl;
 
   // Get file names
-<<<<<<< HEAD
-  sprintf(srcPostfixSim, "%s_sigma%04d_L%d_dt%d_nTraj%d",
-	  gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
-	  (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1), nTraj);
-=======
   sprintf(srcPostfix, "_%s", caseName);
   sprintf(srcPostfixSim, "%s%s_sigma%04d_L%d_spinup%d_dt%d_samp%d_nTraj%d",
 	  srcPostfix, gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
 	  (int) spinup, (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1),
 	  (int) printStepNum, nTraj);
->>>>>>> f22b88b3bd8cb8f5e887873e50668ba85b86cb61
   sprintf(postfix, "%s_tau%03d", srcPostfixSim, (int) (L * 1000 + 0.1));
   sprintf(forwardTransitionFileName, \
 	  "%s/transfer/forwardTransition/forwardTransition%s.coo%s",

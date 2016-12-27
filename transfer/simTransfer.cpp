@@ -117,16 +117,10 @@ int main(int argc, char * argv[])
   transferOp = new transferOperator(N, true);
 
   // Get transition count triplets
-<<<<<<< HEAD
   const size_t nTrajAlloc = nTraj / 10;
   std::cout << "Allocating transition count matrix for "
             << nTrajAlloc << " transitions" << std::endl;
   if (!(T = gsl_spmatrix_alloc_nzmax(N, N, nTrajAlloc, GSL_SPMATRIX_TRIPLET)))
-=======
-  std::cout << "Allocating transition count matrix for "
-	    << nTraj << " transitions" << std::endl;
-  if (!(T = gsl_spmatrix_alloc_nzmax(N, N, nTraj, GSL_SPMATRIX_TRIPLET)))
->>>>>>> f22b88b3bd8cb8f5e887873e50668ba85b86cb61
     {
       fprintf(stderr, "Error allocating\
 triplet count matrix.\n");
@@ -228,8 +222,8 @@ triplet count matrix.\n");
   
   // Write results
   // Grid membership postfix
-  sprintf(dstGridPostfix, "%s%s_sigma%04d_L%d_dt%d_nTraj%d",
-	  srcPostfix, gridPostfix, (int) (sigma * 1000 + 0.1), (int) (L * 1000),
+  sprintf(dstGridPostfix, "%s%s_rho%04d_L%d_dt%d_nTraj%d",
+	  srcPostfix, gridPostfix, (int) (rho * 100 + 0.1), (int) (L * 1000),
 	  (int) round(-gsl_sf_log(dt)/gsl_sf_log(10)+0.1), nTraj);
   sprintf(postfix, "%s_tau%03d", dstGridPostfix, (int) (L * 1000 + 0.1));
 
