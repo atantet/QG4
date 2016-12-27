@@ -105,7 +105,10 @@ int main(int argc, char * argv[])
   transferOp = new transferOperator(N, true);
 
   // Get transition count triplets
-  if (!(T = gsl_spmatrix_alloc_nzmax(N, N, nTraj, GSL_SPMATRIX_TRIPLET)))
+  const size_t nTrajAlloc = nTraj / 10;
+  std::cout << "Allocating transition count matrix for "
+            << nTrajAlloc << " transitions" << std::endl;
+  if (!(T = gsl_spmatrix_alloc_nzmax(N, N, nTrajAlloc, GSL_SPMATRIX_TRIPLET)))
     {
       fprintf(stderr, "Error allocating\
 triplet count matrix.\n");
@@ -215,16 +218,7 @@ triplet count matrix.\n");
   std::cout << "\nConstructing transfer operator for a lag of "
 	    << L << std::endl;
 
-<<<<<<< HEAD
-
-  // Get transition matrices as CSR
-  std::cout << "Building stationary transfer operator..." << std::endl;
-  transferOp = new transferOperator(gridMem, N, true);
-
-
   // Write results
-=======
->>>>>>> da6fca90400ccdf86858fb9012b728cab91adf67
   // Write forward transition matrix
   std::cout << "Writing forward transition matrix..."
 	    << std::endl;
@@ -245,25 +239,6 @@ triplet count matrix.\n");
   transferOp->printInitDist(initDistFileName,
 			    fileFormat, "%.12lf");
       
-<<<<<<< HEAD
-//   // Write backward transition matrix
-//   std::cout << "Writing backward transition matrix \
-// and final distribution..." << std::endl;
-//   sprintf(backwardTransitionFileName,
-// 	  "%s/transfer/backwardTransition/backwardTransition%s.coo%s",
-// 	  resDir, postfix, fileFormat);
-//   transferOp->printBackwardTransition(backwardTransitionFileName,
-// 				      fileFormat, "%.12lf");
-
-//   // Write final distribution 
-//   sprintf(finalDistFileName,
-// 	  "%s/transfer/finalDist/finalDist%s.%s",
-// 	  resDir, postfix, fileFormat);
-//   transferOp->printFinalDist(finalDistFileName,
-// 				 fileFormat, "%.12lf");
-	
-=======
->>>>>>> da6fca90400ccdf86858fb9012b728cab91adf67
   // Free
   delete transferOp;
   freeConfig();

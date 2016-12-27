@@ -327,7 +327,6 @@ readConfig(const char *cfgFileName)
       }
     else
       {
-	
 	gridLimitsLow = gsl_vector_alloc(dimObs);
 	gridLimitsUp = gsl_vector_alloc(dimObs);
 	gsl_vector_memcpy(gridLimitsLow, minInitState);
