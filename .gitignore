@@ -27,3 +27,15 @@
 *.exe
 *.out
 *.app
+
+# Mac files
+.DS_Store
+
+# Data
+results/
+Henk/
+
+# Emacs backup files
+*~
+\#*
+.\#*
