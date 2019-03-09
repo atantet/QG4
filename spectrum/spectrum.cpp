@@ -145,26 +145,6 @@ int main(int argc, char * argv[])
       initDist = gsl_vector_alloc(transferOp->getNFilled());
       gsl_vector_memcpy(initDist, transferOp->initDist);
 	  
-<<<<<<< HEAD
-      // // Scan backward transition matrix
-      // std::cout << "Scanning backward transition matrix from "
-      // 		<< backwardTransitionFileName << std::endl;
-      // transferOp->scanBackwardTransition(backwardTransitionFileName,
-      // 					 fileFormat);
-      
-      // // Only scan final distribution for the first lag
-      // sprintf(finalDistFileName,
-      // 	      "%s/transfer/finalDist/finalDist%s.%s",
-      // 	      resDir, postfix, fileFormat);
-      // std::cout << "Scanning final distribution from "
-      // 		<< finalDistFileName << std::endl;
-      // transferOp->scanFinalDist(finalDistFileName,
-      // 				fileFormat);
-      
-      // // Save final distribution
-      // finalDist = gsl_vector_alloc(transferOp->getNFilled());
-      // gsl_vector_memcpy(finalDist, transferOp->finalDist);
-=======
       if (!stationary)
 	{
 	  // Scan backward transition matrix
@@ -186,7 +166,6 @@ int main(int argc, char * argv[])
 	  finalDist = gsl_vector_alloc(transferOp->getNFilled());
 	  gsl_vector_memcpy(finalDist, transferOp->finalDist);
 	}
->>>>>>> 0f01a5bb58dd9cd2f1867870f5f44031d4e5017a
     }
   catch (std::exception &ex)
     {
@@ -246,14 +225,8 @@ int main(int argc, char * argv[])
 	  // transferSpec->writeSpectrumForward(EigValForwardFileName,
 	  // 				     EigVecForwardFileName,
 	  // 				     fileFormat);
-<<<<<<< HEAD
-	  transferSpec->writeEigValForward(EigValForwardFileName,
-					   fileFormat);
-	}
-=======
 	  transferSpec->writeEigValForward(EigValForwardFileName, fileFormat);
-	  }
->>>>>>> 0f01a5bb58dd9cd2f1867870f5f44031d4e5017a
+	}
       if (getBackwardEigenvectors)
 	{
 	  std::cout << "Writing backward eigenvalues and eigenvectors..."
@@ -261,12 +234,7 @@ int main(int argc, char * argv[])
 	  // transferSpec->writeSpectrumBackward(EigValBackwardFileName,
 	  // 				      EigVecBackwardFileName,
 	  // 				      fileFormat);
-<<<<<<< HEAD
-	  transferSpec->writeEigValBackward(EigValBackwardFileName,
-					    fileFormat);
-=======
 	  transferSpec->writeEigValBackward(EigValBackwardFileName, fileFormat);
->>>>>>> 0f01a5bb58dd9cd2f1867870f5f44031d4e5017a
 	}
     }
   catch (std::exception &ex)
